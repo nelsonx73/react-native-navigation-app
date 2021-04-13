@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
 import {
   StyleSheet,
   Text,
@@ -12,19 +12,25 @@ import { FontAwesome, Feather } from "@expo/vector-icons";
 import * as Animatable from "react-native-animatable";
 import { LinearGradient } from "expo-linear-gradient";
 
+import { AuthContext } from "../context/Context";
+
 export default function SignInScreen({ navigation }) {
   const [data, setData] = useState({
-    email: "",
+    username: "",
     password: "",
     check_textInputChange: false,
     secureTextEntry: true,
+    validPassword: true,
+    validUsername: true,
   });
 
-  const emailInputchange = (value) => {
+  const { SignIn } = useContext(AuthContext);
+
+  const usernameInputChange = (value) => {
     if (value.length !== 0) {
       setData({
         ...data,
-        email: value,
+        username: value,
         check_textInputChange: true,
       });
     } else {
@@ -56,14 +62,14 @@ export default function SignInScreen({ navigation }) {
         <Text style={styles.text_header}>Welcome!</Text>
       </View>
       <Animatable.View style={styles.footer} animation="fadeInUpBig">
-        <Text style={styles.text_footer}>Email</Text>
+        <Text style={styles.text_footer}>Username</Text>
         <View style={styles.action}>
           <FontAwesome name="user-o" color="#05375a" size={20} />
           <TextInput
-            placeholder="Your Email"
+            placeholder="Your username"
             style={styles.textInput}
             autoCapitalize="none"
-            onChangeText={(value) => emailInputchange(value)}
+            onChangeText={(value) => usernameInputChange(value)}
           />
           {data.check_textInputChange && (
             <Animatable.View animation="bounceIn">
@@ -71,6 +77,14 @@ export default function SignInScreen({ navigation }) {
             </Animatable.View>
           )}
         </View>
+        {!data.validUsername && (
+          <Animatable.View animation="fadeInLeft" duration={500}>
+            <Text style={styles.errorMsg}>
+              Username must be 4 characters long.
+            </Text>
+          </Animatable.View>
+        )}
+
         <Text style={{ marginTop: 35, ...styles.text_footer }}>Password</Text>
         <View style={styles.action}>
           <Feather name="lock" color="#05375a" size={20} />
@@ -89,15 +103,33 @@ export default function SignInScreen({ navigation }) {
             )}
           </TouchableOpacity>
         </View>
+        {!data.validPassword && (
+          <Animatable.View animation="fadeInLeft" duration={500}>
+            <Text style={styles.errorMsg}>
+              Password must be 8 characters long.
+            </Text>
+          </Animatable.View>
+        )}
+
+        <TouchableOpacity>
+          <Text style={{ color: "#009387", marginTop: 15 }}>
+            Forgot password?
+          </Text>
+        </TouchableOpacity>
 
         <View>
           <View style={styles.button}>
-            <LinearGradient
-              colors={["#08d4c4", "#01ab9d"]}
+            <TouchableOpacity
               style={styles.signIn}
+              onPress={() => SignIn(data.username, data.password)}
             >
-              <Text style={styles.textSign}>Sign In</Text>
-            </LinearGradient>
+              <LinearGradient
+                colors={["#08d4c4", "#01ab9d"]}
+                style={styles.signIn}
+              >
+                <Text style={styles.textSign}>Sign In</Text>
+              </LinearGradient>
+            </TouchableOpacity>
           </View>
 
           <TouchableOpacity

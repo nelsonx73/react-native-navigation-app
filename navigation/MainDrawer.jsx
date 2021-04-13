@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
 import { StyleSheet, View } from "react-native";
 import {
   Avatar,
@@ -15,8 +15,12 @@ import { DrawerContentScrollView, DrawerItem } from "@react-navigation/drawer";
 
 import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 
+import { AuthContext } from "../context/Context";
+
 export default function MainDrawer({ navigation }) {
   const [isDarkTheme, setIsDarkTheme] = useState(false);
+
+  const { SignOut } = useContext(AuthContext);
 
   return (
     <View style={{ flex: 1 }}>
@@ -110,7 +114,7 @@ export default function MainDrawer({ navigation }) {
         <DrawerItem
           icon={() => <Ionicons name="exit-outline" size={26} />}
           label="Sign out"
-          onPress={() => {}}
+          onPress={() => SignOut()}
         />
       </Drawer.Section>
     </View>
