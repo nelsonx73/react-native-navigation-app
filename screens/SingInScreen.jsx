@@ -6,13 +6,16 @@ import {
   TouchableOpacity,
   TextInput,
   StatusBar,
+  Alert,
 } from "react-native";
 import { FontAwesome, Feather } from "@expo/vector-icons";
 
 import * as Animatable from "react-native-animatable";
 import { LinearGradient } from "expo-linear-gradient";
 
-import { AuthContext } from "../context/Context";
+import { AuthContext, UserContext } from "../context/Context";
+
+import Users from "../data/DummyData";
 
 export default function SignInScreen({ navigation }) {
   const [data, setData] = useState({
@@ -27,26 +30,37 @@ export default function SignInScreen({ navigation }) {
   const { SignIn } = useContext(AuthContext);
 
   const usernameInputChange = (value) => {
-    if (value.length !== 0) {
+    if (value.trim().length >= 4) {
       setData({
         ...data,
         username: value,
         check_textInputChange: true,
+        validUsername: true,
       });
     } else {
       setData({
         ...data,
-        // email: value,
+        username: value,
         check_textInputChange: false,
+        validUsername: false,
       });
     }
   };
 
   const passwordInputChange = (value) => {
-    setData({
-      ...data,
-      password: value,
-    });
+    if (value.trim().length >= 8) {
+      setData({
+        ...data,
+        password: value,
+        validPassword: true,
+      });
+    } else {
+      setData({
+        ...data,
+        password: value,
+        validPassword: false,
+      });
+    }
   };
 
   const updateSecureTextEntry = () => {
@@ -54,6 +68,44 @@ export default function SignInScreen({ navigation }) {
       ...data,
       secureTextEntry: !data.secureTextEntry,
     });
+  };
+
+  const handleValidUser = (value) => {
+    if (value.trim().length >= 4) {
+      setData({
+        ...data,
+        validUsername: true,
+      });
+    } else {
+      setData({
+        ...data,
+        validUsername: false,
+      });
+    }
+  };
+
+  const handleSingIn = () => {
+    if (data.username.length === 0 && data.password.length === 0) {
+      Alert.alert(
+        "Wrong Input!",
+        "Username or password field cannot be empty.",
+        [{ text: "Ok" }]
+      );
+      return;
+    }
+
+    const user = Users.filter(
+      (element) =>
+        element.username === data.username && element.password === data.password
+    );
+
+    if (user.length === 0) {
+      Alert.alert("Invalid User!", "Username or password is incorrect", [
+        { text: "Ok" },
+      ]);
+      return;
+    }
+    SignIn(user[0]);
   };
 
   return (
@@ -70,6 +122,7 @@ export default function SignInScreen({ navigation }) {
             style={styles.textInput}
             autoCapitalize="none"
             onChangeText={(value) => usernameInputChange(value)}
+            onEndEditing={(e) => handleValidUser(e.nativeEvent.text)}
           />
           {data.check_textInputChange && (
             <Animatable.View animation="bounceIn">
@@ -119,10 +172,7 @@ export default function SignInScreen({ navigation }) {
 
         <View>
           <View style={styles.button}>
-            <TouchableOpacity
-              style={styles.signIn}
-              onPress={() => SignIn(data.username, data.password)}
-            >
+            <TouchableOpacity style={styles.signIn} onPress={handleSingIn}>
               <LinearGradient
                 colors={["#08d4c4", "#01ab9d"]}
                 style={styles.signIn}

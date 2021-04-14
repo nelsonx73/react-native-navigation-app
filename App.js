@@ -14,7 +14,7 @@ import BookmarksScreen from "./screens/BookmarksScreen";
 import MainTab from "./navigation/MainTab";
 import MainDrawer from "./navigation/MainDrawer";
 import MainStack from "./navigation/MainStack";
-import { AuthContext } from "./context/Context";
+import { AuthContext, UserContext } from "./context/Context";
 
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
@@ -66,16 +66,18 @@ export default function App() {
 
   const authContext = useMemo(
     () => ({
-      SignIn: async (userName, password) => {
-        if (userName === "user" && password === "pass") {
-          const token = "12345";
-          try {
-            await AsyncStorage.setItem("userToken", token);
-          } catch (error) {
-            console.log(error);
-          }
-          dispatch({ type: "LOGIN", payload: { id: userName, token } });
+      SignIn: async (user) => {
+        console.log(user);
+        try {
+          await AsyncStorage.setItem("userToken", user.userToken);
+        } catch (error) {
+          console.log(error);
         }
+
+        dispatch({
+          type: "LOGIN",
+          payload: { id: user.username, token: user.usertoken },
+        });
       },
       SignOut: async () => {
         await AsyncStorage.removeItem("userToken");
@@ -91,6 +93,7 @@ export default function App() {
     }),
     []
   );
+  const userContext = {};
 
   useEffect(() => {
     setTimeout(async () => {
